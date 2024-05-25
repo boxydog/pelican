@@ -607,8 +607,8 @@ class Readers(FileStampDataCacher):
 
         # eventually filter the content with typogrify if asked so
         if self.settings["TYPOGRIFY"]:
+            from typogrify.filters import typogrify  # noqa: I001
             import smartypants
-            from typogrify.filters import typogrify
 
             typogrify_dashes = self.settings["TYPOGRIFY_DASHES"]
             if typogrify_dashes == "oldschool":

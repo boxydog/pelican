@@ -15,11 +15,10 @@ except ModuleNotFoundError:
     from backports.zoneinfo import ZoneInfo
 
 
-from pelican.plugins import signals
+from pelican.plugins import signals  # noqa: I001
 from pelican.settings import DEFAULT_CONFIG, Settings
 
 # Import these so that they're available when you import from pelican.contents.
-from pelican.urlwrappers import Author, Category, Tag, URLWrapper  # NOQA
 from pelican.utils import (
     deprecated_attribute,
     memoized,
@@ -30,6 +29,8 @@ from pelican.utils import (
     slugify,
     truncate_html_words,
 )
+
+from pelican.urlwrappers import Author, Category, Tag
 
 logger = logging.getLogger(__name__)
 

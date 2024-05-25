@@ -1,4 +1,4 @@
-from blinker import Signal, signal
+from blinker import signal, Signal  # noqa: I001
 from ordered_set import OrderedSet
 
 # Signals will call functions in the order of connection, i.e. plugin order
