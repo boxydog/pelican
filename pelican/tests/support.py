@@ -198,7 +198,7 @@ class LogCountHandler(BufferingHandler):
         super().__init__(capacity)
 
     def count_logs(self, msg=None, level=None):
-        return len(
+        result = len(
             [
                 rec
                 for rec in self.buffer
@@ -206,6 +206,12 @@ class LogCountHandler(BufferingHandler):
                 and (level is None or rec.levelno == level)
             ]
         )
+        print(
+            f"count_logs msg '{msg}' level '{level}' count {result} "
+            f"all messages: {self.buffer}",
+            file=sys.stderr,
+        )
+        return result
 
     def count_formatted_logs(self, msg=None, level=None):
         return len(
