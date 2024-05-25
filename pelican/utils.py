@@ -206,6 +206,8 @@ def deprecated_attribute(
     """
 
     def _warn():
+        print("top of deprecated_attribute._warn", file=sys.stderr)
+
         version = ".".join(str(x) for x in since)
         message = [f"{old} has been deprecated since {version}"]
         if remove:
@@ -214,6 +216,7 @@ def deprecated_attribute(
         message.append(f".  Use {new} instead.")
         logger.warning("".join(message))
         logger.debug("".join(str(x) for x in traceback.format_stack()))
+        print("bottom of deprecated_attribute._warn", file=sys.stderr)
 
     def fget(self):
         _warn()

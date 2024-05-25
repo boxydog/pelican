@@ -2,6 +2,7 @@ import locale
 import logging
 import os
 import shutil
+import sys
 from datetime import timezone
 from sys import platform
 from tempfile import mkdtemp
@@ -41,7 +42,9 @@ class TestUtils(LoggedTestCase):
         return None
 
     def test_deprecated_attribute(self):
+        print("BEFORE value = self._old_attribute", file=sys.stderr)
         value = self._old_attribute
+        print("AFTER value = self._old_attribute", file=sys.stderr)
         self.assertEqual(value, self._new_attribute)
         self.assertLogCountEqual(
             count=1,
