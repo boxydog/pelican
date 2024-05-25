@@ -37,7 +37,7 @@ class TestUtils(LoggedTestCase):
     @utils.deprecated_attribute(
         old="_old_attribute", new="_new_attribute", since=(3, 1, 0), remove=(4, 1, 3)
     )
-    def _old_attribute():
+    def _old_attribute(self):
         return None
 
     def test_deprecated_attribute(self):
