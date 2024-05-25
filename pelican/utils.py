@@ -36,8 +36,8 @@ try:
     from zoneinfo import ZoneInfo
 except ModuleNotFoundError:
     from backports.zoneinfo import ZoneInfo
+from markupsafe import Markup  # noqa: I001
 import watchfiles
-from markupsafe import Markup
 
 if TYPE_CHECKING:
     from pelican.contents import Content
