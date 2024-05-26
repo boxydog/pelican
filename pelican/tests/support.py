@@ -257,9 +257,11 @@ class LoggedTestCase(unittest.TestCase):
         super().setUp()
         self._logcount_handler = LogCountHandler()
         logging.getLogger().addHandler(self._logcount_handler)
+        print(f"Class {self.__class__.__name__} setUp added logcount_handler")
 
     def tearDown(self):
         logging.getLogger().removeHandler(self._logcount_handler)
+        print(f"Class {self.__class__.__name__} tearDown removed logcount_handler")
         super().tearDown()
 
     def assertLogCountEqual(self, count=None, msg=None, **kwargs):
