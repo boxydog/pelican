@@ -16,7 +16,7 @@ jobs:
       matrix:
         # TODO: implement windows
         # os: [ubuntu, macos, windows]
-        os: [ubuntu]
+        os: [windows]
         # TODO: put back 3.11, 3.12
         # python: ["3.10", "3.11", "3.12"]
         python: ["3.10"]
@@ -44,14 +44,34 @@ jobs:
           pandoc-version: "2.9.2"
       - name: Install tox
         run: python -m pip install -U pip tox
-      - name: Set up dependencies with invoke
+      - name: Set up virtualenv
+        # our tasks.py wants a virtualenv, so make one
+        # unfortunately, every step that uses it has to be split by
+        # platform, because activating it is different on unix and windows
+        if: runner.os != 'Windows'
+        run: python -m venv venv
+      - name: Set up virtualenv (windows)
+        if: runner.os == 'Windows'
+        run: |
+          python -m venv venv
+          if ($LASTEXITCODE -ne 0) {
+              Write-Host "Virtual environment creation failed: $LASTEXITCODE"
+              exit $LASTEXITCODE
+          }
+          $pwd
+          # dir venv\Scripts
+      - name: Set up dependencies with invoke (not windows)
         if: runner.os != 'Windows'
         run: |
-          # our tasks.py wants a virtualenv
-          python -m venv .venv
-          source .venv/bin/activate
-          echo $VIRTUAL_ENV
-          which python
+          source venv/bin/activate
+          python -m pip install invoke
+          python -m invoke setup
+      - name: Set up dependencies with invoke (windows)
+        if: runner.os == 'Windows'
+        run: |
+          $pwd
+          . venv\Scripts\activate
+          Import-Module venv
           python -m pip install invoke
           python -m invoke setup
       - name: Info
@@ -60,12 +80,21 @@ jobs:
           python --version
           echo "=====  PANDOC  ====="
           pandoc --version | head -2
-      - name: Run tests with coverage
+      - name: Run tests with coverage (not windows)
         if: runner.os != 'Windows'
         run: |
-          source .venv/bin/activate
+          source venv/bin/activate
           python -m pytest --cov=pelican
           ls -l .coverage.*
+        env:
+          # control the filename to avoid issues with uploading
+          # see also https://github.com/actions/upload-artifact/issues/478#issuecomment-2096976037
+          COVERAGE_FILE: .coverage.${{ matrix.os }}.${{ matrix.python }}.${{ github.event_name }}
+      - name: Run tests with coverage (windows)
+        if: runner.os == 'Windows'
+        run: |
+          .\venv\bin\activate
+          python -m pytest --cov=pelican
         env:
           # control the filename to avoid issues with uploading
           # see also https://github.com/actions/upload-artifact/issues/478#issuecomment-2096976037
