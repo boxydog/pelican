@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 from shutil import which
 
@@ -15,9 +16,21 @@ VENV_PATH = Path(ACTIVE_VENV) if ACTIVE_VENV else (VENV_HOME / PKG_NAME)
 VENV = str(VENV_PATH.expanduser())
 VENV_BIN = Path(VENV) / Path(BIN_DIR)
 
+PYTHON = which("python")
+
 TOOLS = ["pdm", "pre-commit", "psutil"]
-PDM = which("pdm") or VENV_BIN / "pdm"
-PRECOMMIT = which("pre-commit") or VENV_BIN / "pre-commit"
+
+
+def _get_pdm_path():
+    return which("pdm") or VENV_BIN / "pdm"
+
+
+def _get_precommit_path():
+    return which("pre-commit") or VENV_BIN / "pre-commit"
+
+
+def _get_coverage_path():
+    return which("coverage")
 
 
 @task
@@ -41,14 +54,14 @@ def docserve(c):
 @task
 def tests(c):
     """Run the test suite"""
-    c.run(f"{VENV_BIN}/pytest", pty=PTY)
+    c.run(f"{PYTHON} -m pytest", pty=PTY)
 
 
 @task
 def coverage(c):
     """Generate code coverage of running the test suite."""
-    c.run(f"{VENV_BIN}/pytest --cov=pelican", pty=PTY)
-    c.run(f"{VENV_BIN}/coverage html", pty=PTY)
+    c.run(f"{PYTHON} -m pytest --cov=pelican", pty=PTY)
+    c.run(f"{PYTHON} -m coverage html", pty=PTY)
 
 
 @task
@@ -87,20 +100,23 @@ def tools(c):
     """Install tools in the virtual environment if not already on PATH"""
     for tool in TOOLS:
         if not which(tool):
-            c.run(f"{VENV_BIN}/python -m pip install {tool}", pty=PTY)
+            c.run(f"{PYTHON} -m pip install {tool}", pty=PTY)
 
 
 @task
 def precommit(c):
     """Install pre-commit hooks to .git/hooks/pre-commit"""
-    c.run(f"{PRECOMMIT} install", pty=PTY)
+    precommt = _get_precommit_path()
+    c.run(f"{precommt} install", pty=PTY)
 
 
 @task
 def setup(c):
-    c.run(f"{VENV_BIN}/python -m pip install -U pip", pty=PTY)
+    c.run(f"{PYTHON} -m pip install -U pip", pty=PTY)
     tools(c)
-    c.run(f"{PDM} install", pty=PTY)
+    pdm = _get_pdm_path()
+    print(f"***** running {pdm} install", file=sys.stderr)  # noqa: T201
+    c.run(f"{pdm} install -v", pty=PTY, echo=True)
     precommit(c)
 
 
